@@ -370,8 +370,8 @@
                                 <input type="text" name="customer_name" class="form-control" id="manualCustomerName" value="{{ order.customer.full_name }}" placeholder="Customer full name" required>
                               </div>
                               <div class="col-md-6">
-                                <label class="form-label">Phone *</label>
-                                <input type="tel" name="customer_phone" class="form-control" id="manualCustomerPhone" placeholder="Phone number" required>
+                                <label class="form-label">Phone <small class="text-muted">(optional)</small></label>
+                                <input type="tel" name="customer_phone" class="form-control" id="manualCustomerPhone" placeholder="Phone number">
                               </div>
                             </div>
                             <div class="row mb-2">
@@ -463,51 +463,16 @@
                           </div>
                         </div>
 
-                        <hr>
-
-                        <!-- Order Type Selection -->
-                        <div class="mb-3">
-                          <label class="form-label fw-bold">Order Type *</label>
-                          <div class="btn-group w-100" role="group">
-                            <input type="radio" class="btn-check order-type-option" name="order_type" id="orderTypeService" value="service" required>
-                            <label class="btn btn-outline-primary" for="orderTypeService">
-                              <i class="fa fa-hammer me-2"></i>Service
-                            </label>
-
-                            <input type="radio" class="btn-check order-type-option" name="order_type" id="orderTypeSales" value="sales" required>
-                            <label class="btn btn-outline-primary" for="orderTypeSales">
-                              <i class="fa fa-shopping-bag me-2"></i>Sales
-                            </label>
+                        <!-- Services/Add-ons Section (Optional) -->
+                        <div class="card mb-3">
+                          <div class="card-header bg-light">
+                            <h6 class="mb-0"><i class="fa fa-list-check me-2"></i>Services/Add-ons (Optional)</h6>
                           </div>
-                        </div>
-
-                        <!-- Service Order Type Section -->
-                        <div id="serviceOrderSection" style="display:none;" class="mb-3">
-                          <div class="card border-success">
-                            <div class="card-header bg-success text-white">
-                              <h6 class="mb-0"><i class="fa fa-list-check me-2"></i>Service Offered</h6>
+                          <div class="card-body">
+                            <div class="row g-2" id="serviceTypesContainer">
+                              <!-- Service checkboxes will be loaded here -->
                             </div>
-                            <div class="card-body">
-                              <div class="row g-2" id="serviceTypesContainer">
-                                <!-- Service checkboxes will be loaded here -->
-                              </div>
-                              <div class="small text-muted mt-2" id="serviceEtaHint" style="display:none;"></div>
-                            </div>
-                          </div>
-                        </div>
-
-                        <!-- Sales Order Type Section -->
-                        <div id="salesOrderSection" style="display:none;" class="mb-3">
-                          <div class="card border-warning">
-                            <div class="card-header bg-warning text-dark">
-                              <h6 class="mb-0"><i class="fa fa-list-check me-2"></i>Tire Service Add-ons</h6>
-                            </div>
-                            <div class="card-body">
-                              <div class="row g-2" id="addonTypesContainer">
-                                <!-- Addon checkboxes will be loaded here -->
-                              </div>
-                              <div class="small text-muted mt-2" id="addonEtaHint" style="display:none;"></div>
-                            </div>
+                            <div class="small text-muted mt-2" id="serviceEtaHint" style="display:none;"></div>
                           </div>
                         </div>
 
@@ -1317,14 +1282,9 @@
                 updateSubtypeVisibility();
               }
 
-              // ===== Order Type Selection and Service/Addon Loading =====
-              const orderTypeOptions = safeQuerySelectorAll('.order-type-option');
-              const serviceOrderSection = document.getElementById('serviceOrderSection');
-              const salesOrderSection = document.getElementById('salesOrderSection');
+              // ===== Service/Addon Loading (No Order Type Dependency) =====
               const serviceTypesContainer = document.getElementById('serviceTypesContainer');
-              const addonTypesContainer = document.getElementById('addonTypesContainer');
               const serviceEtaHint = document.getElementById('serviceEtaHint');
-              const addonEtaHint = document.getElementById('addonEtaHint');
 
               let serviceTypes = [];
               let addons = [];
@@ -1338,16 +1298,17 @@
                   const data = await response.json();
                   serviceTypes = data.service_types || [];
                   addons = data.service_addons || [];
-                  renderServiceCheckboxes();
-                  renderAddonCheckboxes();
+                  renderAllCheckboxes();
                 } catch (err){
                   console.error('Error loading service data:', err);
                 }
               }
 
-              function renderServiceCheckboxes(){
+              function renderAllCheckboxes(){
                 if (!serviceTypesContainer) return;
                 serviceTypesContainer.innerHTML = '';
+
+                // Render services
                 serviceTypes.forEach((svc, idx) => {
                   const col = document.createElement('div');
                   col.className = 'col-md-6 col-lg-4';
@@ -1364,34 +1325,38 @@
                   `;
                   serviceTypesContainer.appendChild(col);
                 });
-                updateServiceEta();
-              }
 
-              function renderAddonCheckboxes(){
-                if (!addonTypesContainer) return;
-                addonTypesContainer.innerHTML = '';
-                addons.forEach((addon, idx) => {
-                  const col = document.createElement('div');
-                  col.className = 'col-md-6 col-lg-4';
-                  col.innerHTML = `
-                    <div class="addon-checkbox-card">
-                      <input class="form-check-input addon-checkbox" type="checkbox" id="addon_chk_${idx}" name="tire_services_chk" value="${addon.name}" data-minutes="${addon.estimated_minutes}">
-                      <label class="addon-checkbox-label" for="addon_chk_${idx}">
-                        <div class="addon-checkbox-content">
-                          <div class="addon-checkbox-name">${addon.name}</div>
-                          <div class="addon-checkbox-duration"><i class="fa fa-clock-o me-1"></i>${addon.estimated_minutes} mins</div>
-                        </div>
-                      </label>
-                    </div>
-                  `;
-                  addonTypesContainer.appendChild(col);
-                });
-                updateAddonEta();
+                // Render addons
+                if (addons.length > 0) {
+                  const hr = document.createElement('div');
+                  hr.className = 'col-12 mt-2';
+                  hr.innerHTML = '<hr>';
+                  serviceTypesContainer.appendChild(hr);
+
+                  addons.forEach((addon, idx) => {
+                    const col = document.createElement('div');
+                    col.className = 'col-md-6 col-lg-4';
+                    col.innerHTML = `
+                      <div class="addon-checkbox-card">
+                        <input class="form-check-input addon-checkbox" type="checkbox" id="addon_chk_${idx}" name="service_selection_chk" value="${addon.name}" data-minutes="${addon.estimated_minutes}">
+                        <label class="addon-checkbox-label" for="addon_chk_${idx}">
+                          <div class="addon-checkbox-content">
+                            <div class="addon-checkbox-name">${addon.name}</div>
+                            <div class="addon-checkbox-duration"><i class="fa fa-clock-o me-1"></i>${addon.estimated_minutes} mins</div>
+                          </div>
+                        </label>
+                      </div>
+                    `;
+                    serviceTypesContainer.appendChild(col);
+                  });
+                }
+
+                updateServiceEta();
               }
 
               function updateServiceEta(){
                 if (!serviceTypesContainer) return;
-                const checked = safeQuerySelectorAll('.service-checkbox:checked', serviceTypesContainer);
+                const checked = safeQuerySelectorAll('input[name="service_selection_chk"]:checked', serviceTypesContainer);
                 let totalMinutes = 0;
                 checked.forEach(chk => {
                   totalMinutes += parseInt(chk.dataset.minutes || 0);
@@ -1411,52 +1376,13 @@
                 }
               }
 
-              function updateAddonEta(){
-                if (!addonTypesContainer) return;
-                const checked = safeQuerySelectorAll('.addon-checkbox:checked', addonTypesContainer);
-                let totalMinutes = 0;
-                checked.forEach(chk => {
-                  totalMinutes += parseInt(chk.dataset.minutes || 0);
-                });
-                const addonSelection = Array.from(checked).map(c => c.value).join(',');
-                const serviceSelInput = document.getElementById('serviceSelection');
-                const estimatedDurInput = document.getElementById('estimatedDuration');
-                if (serviceSelInput) serviceSelInput.value = addonSelection;
-                if (estimatedDurInput) estimatedDurInput.value = totalMinutes;
-                if (addonEtaHint){
-                  if (totalMinutes > 0){
-                    addonEtaHint.textContent = `Estimated duration: ${totalMinutes} minutes`;
-                    addonEtaHint.style.display = 'block';
-                  } else {
-                    addonEtaHint.style.display = 'none';
-                  }
-                }
-              }
-
-              if (orderTypeOptions && orderTypeOptions.length > 0){
-                orderTypeOptions.forEach(option => {
-                  option.addEventListener('change', function(){
-                    if (this.value === 'service'){
-                      if (serviceOrderSection) serviceOrderSection.style.display = 'block';
-                      if (salesOrderSection) salesOrderSection.style.display = 'none';
-                    } else {
-                      if (serviceOrderSection) serviceOrderSection.style.display = 'none';
-                      if (salesOrderSection) salesOrderSection.style.display = 'block';
-                    }
-                  });
-                });
-              }
-
               // Attach listeners to service/addon checkboxes
               if (serviceTypesContainer){
                 serviceTypesContainer.addEventListener('change', updateServiceEta);
               }
-              if (addonTypesContainer){
-                addonTypesContainer.addEventListener('change', updateAddonEta);
-              }
 
               // Load service data on modal open
-              if (serviceTypesContainer || addonTypesContainer){
+              if (serviceTypesContainer){
                 loadServiceData();
               }
 
@@ -1467,21 +1393,13 @@
 
                   // Validate required fields
                   const customerName = this.querySelector('input[name="customer_name"]');
-                  const customerPhone = this.querySelector('input[name="customer_phone"]');
                   const customerType = this.querySelector('select[name="customer_type"]');
                   const totalAmount = this.querySelector('input[name="total_amount"]');
-                  const orderType = this.querySelector('input[name="order_type"]:checked');
 
-                  if (!customerName || !customerName.value.trim() || 
-                      !customerPhone || !customerPhone.value.trim() || 
-                      !customerType || !customerType.value.trim() || 
+                  if (!customerName || !customerName.value.trim() ||
+                      !customerType || !customerType.value.trim() ||
                       !totalAmount || !totalAmount.value.trim()){
-                    showError('<i class="fa fa-warning me-2"></i>Please fill in customer name, phone, customer type, and total amount.');
-                    return;
-                  }
-
-                  if (!orderType){
-                    showError('<i class="fa fa-warning me-2"></i>Please select an order type (Service or Sales).');
+                    showError('<i class="fa fa-warning me-2"></i>Please fill in customer name, customer type, and total amount.');
                     return;
                   }
 
