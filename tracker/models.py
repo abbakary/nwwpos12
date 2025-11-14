@@ -182,6 +182,15 @@ class Order(models.Model):
     completion_date = models.DateTimeField(blank=True, null=True)
     cancellation_reason = models.TextField(blank=True, null=True)
 
+    # Time estimation and tracking
+    estimated_duration = models.PositiveIntegerField(blank=True, null=True, help_text="Estimated duration in minutes")
+    actual_duration = models.PositiveIntegerField(blank=True, null=True, help_text="Actual duration in minutes")
+
+    # Delay/overrun reason for orders that took longer than estimated
+    overrun_reason = models.TextField(blank=True, null=True, help_text="Reason for exceeding estimated duration")
+    overrun_reported_at = models.DateTimeField(blank=True, null=True)
+    overrun_reported_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='orders_overrun_reported')
+
     # Job card/identification number for quick order lookup (optional)
     job_card_number = models.CharField(max_length=64, blank=True, null=True, unique=True)
 
