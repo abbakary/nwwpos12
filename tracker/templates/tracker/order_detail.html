@@ -904,9 +904,11 @@
               {% if order.status == 'created' %}
                 <span class="badge bg-secondary"><i class="fa fa-play me-1"></i>New</span>
               {% elif order.status == 'in_progress' %}
-                <span class="badge bg-warning text-dark"><i class="fa fa-clock me-1"></i>In Progress</span>
-              {% elif order.status == 'overdue' and order.type != 'inquiry' %}
-                <span class="badge bg-danger"><i class="fa fa-exclamation-triangle me-1"></i>Overdue</span>
+                {% if order.is_overdue %}
+                  <span class="badge bg-danger"><i class="fa fa-exclamation-triangle me-1"></i>Overdue</span>
+                {% else %}
+                  <span class="badge bg-warning text-dark"><i class="fa fa-clock me-1"></i>In Progress</span>
+                {% endif %}
               {% elif order.status == 'completed' %}
                 <span class="badge bg-success"><i class="fa fa-check me-1"></i>Completed</span>
               {% elif order.status == 'cancelled' %}
@@ -916,6 +918,40 @@
               {% endif %}
             </div>
           </div>
+
+          {% if order.status == 'in_progress' %}
+          <hr>
+          <div class="mb-2 small text-muted">Working Hours Elapsed</div>
+          <div id="workingHoursDisplay" class="mb-2 d-flex justify-content-between">
+            <div class="text-muted">Elapsed Time</div>
+            <div class="fw-medium text-end">
+              <span id="workingHoursValue">Calculating...</span>
+            </div>
+          </div>
+          {% if order.is_overdue %}
+          <div class="alert alert-danger border-0 bg-danger bg-opacity-10 mb-2" role="alert">
+            <i class="fa fa-exclamation-circle me-2"></i>
+            <strong>Order is overdue!</strong> It has exceeded 9 working hours (8 AM - 5 PM).
+            {% set overdue_status = order.get_overdue_status %}
+            <br><small>Overdue by: <span class="fw-bold">{{ overdue_status.overdue_hours }}h</span></small>
+          </div>
+          {% endif %}
+          {% endif %}
+
+          {% if order.estimated_duration %}
+          <hr>
+          <div class="mb-2 small text-muted">Time Estimation</div>
+          <div class="mb-2 d-flex justify-content-between">
+            <div class="text-muted">Estimated Duration</div>
+            <div class="fw-medium text-end">
+              {% if order.estimated_duration < 60 %}
+                {{ order.estimated_duration }}m
+              {% else %}
+                {{ order.estimated_duration|divisibleby:"60"|yesno:"," }}h {{ order.estimated_duration|remainder:60 }}m
+              {% endif %}
+            </div>
+          </div>
+          {% endif %}
 
           {# Summary extra lines: show vehicle, short description and key fields depending on type #}
           <hr>
