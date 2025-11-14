@@ -175,13 +175,12 @@ class ExtractionFormModal {
       const badgeHtml = badge ? ` <span class="badge bg-light text-dark ms-1">${badge}</span>` : '';
       col.innerHTML = `
         <div class="form-check">
-          <input class="form-check-input extraction-service-checkbox" type="checkbox" 
-                 id="extraction_svc_${service.id}" 
-                 name="extracted_services" 
-                 value="${service.name}" 
-                 data-minutes="${service.estimated_minutes || 0}">
+          <input class="form-check-input extraction-service-checkbox" type="checkbox"
+                 id="extraction_svc_${service.id}"
+                 name="extracted_services"
+                 value="${service.name}">
           <label class="form-check-label" for="extraction_svc_${service.id}">
-            ${service.name} <span class="text-muted small">(${service.estimated_minutes || 0}m)</span>${badgeHtml}
+            ${service.name}${badgeHtml}
           </label>
         </div>
       `;
