@@ -250,65 +250,6 @@ def format_minutes(value: Optional[Union[int, float, str]]):
     except (ValueError, TypeError):
         return ''
 
-@register.filter(name='eta_status_label')
-def eta_status_label(order_or_tuple):
-    """
-    Determine ETA performance label given (estimated_minutes, actual_minutes) or an order.
-    Active (in-progress/created) orders use elapsed minutes as "actual".
-    Returns one of: "On estimate", "Within 10%", "Exceeded estimate", "No estimate".
-    """
-    try:
-        est = None
-        act = None
-        obj = order_or_tuple
-        # Accept a tuple/list
-        if isinstance(obj, (tuple, list)) and len(obj) >= 2:
-            est, act = obj[0], obj[1]
-        else:
-            est = getattr(obj, 'estimated_duration', None)
-            act = getattr(obj, 'actual_duration', None)
-            # Derive elapsed for active orders when actual is not yet set
-            if act is None and hasattr(obj, 'status') and getattr(obj, 'status') in {'created', 'in_progress'}:
-                try:
-                    start = getattr(obj, 'started_at', None) or getattr(obj, 'created_at', None)
-                    if start:
-                        from django.utils import timezone
-                        dt = timezone.localtime(start) if timezone.is_aware(start) else start
-                        delta = timezone.now() - dt
-                        act = int(max(0, delta.total_seconds() // 60))
-                except Exception:
-                    act = None
-        if not est:
-            return 'No estimate'
-        if act is None:
-            return ''
-        est = float(est)
-        act = float(act)
-        if act <= est:
-            return 'On estimate'
-        if act <= est * 1.10:
-            return 'Within 10%'
-        return 'Exceeded estimate'
-    except Exception:
-        return ''
-
-@register.filter(name='eta_status_badge')
-def eta_status_badge(order_or_tuple):
-    """
-    Return Bootstrap badge class for ETA performance.
-    - On estimate -> bg-success
-    - Within 10% -> bg-warning text-dark
-    - Exceeded estimate -> bg-danger
-    - No estimate/unknown -> bg-secondary
-    """
-    label = eta_status_label(order_or_tuple)
-    if label == 'On estimate':
-        return 'bg-success'
-    if label == 'Within 10%':
-        return 'bg-warning text-dark'
-    if label == 'Exceeded estimate':
-        return 'bg-danger'
-    return 'bg-secondary'
 
 
 @register.filter(name='elapsed_minutes')
