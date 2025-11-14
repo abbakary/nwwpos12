@@ -384,14 +384,6 @@
                     <div class="alert alert-warning py-2 mb-0"><i class="fa fa-exclamation-triangle me-2"></i>No services selected</div>
                   </div>
                   {% endif %}
-                  {% if step3.estimated_duration %}
-                  <div class="col-12">
-                    <small class="text-muted d-block fw-medium" style="color: rgba(255, 208, 0, 0.534);">Estimated Time</small>
-                    <div class="p-2 rounded border-start border-4 border-success bg-light">
-                      <strong style="color: rgb(255, 187, 0);">{{ step3.estimated_duration }} mins</strong>
-                    </div>
-                  </div>
-                  {% endif %}
                 </div>
 
               {% elif intent == 'sales' %}
