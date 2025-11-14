@@ -161,7 +161,24 @@ def extract_header_fields(text):
 
     address = extract_field(r'Address')
     date_str = extract_field(r'Date')
-    phone = extract_field(r'(?:Tel|Telephone)')
+
+    # Extract phone more carefully - must match phone number pattern
+    phone = None
+    phone_pattern = r'(?:Tel\.?|Telephone|Phone)\s*[:=\s]\s*([\+\d][\d\s\-/\(\)]{4,}[\d])'
+    phone_match = re.search(phone_pattern, text, re.I | re.MULTILINE)
+    if phone_match:
+        phone_candidate = phone_match.group(1).strip()
+        # Validate: must contain mostly digits and common phone separators
+        # Remove all non-phone characters
+        digits_only = re.sub(r'[^\d\+\-\(\)\s/]', '', phone_candidate)
+        # Must have at least 7 digits
+        digit_count = len(re.findall(r'\d', digits_only))
+        if digit_count >= 7:
+            # Filter out product codes and specs that accidentally matched
+            # Product specs typically have letters like "LT", "TR", "PCS", "NOS", "UNT" etc
+            if not re.search(r'(?:LT|TR|PCS|NOS|UNT|KG|HR|LTR|BOX|CASE|SETS?|TYRE|TIRE|WHEEL|BRAKE|VALVE|REPAIR|SERVICE)\d', phone_candidate, re.I):
+                phone = phone_candidate
+
     email = None
     email_match = re.search(r'([^\s\n]+@[^\s\n]+)', text)
     if email_match:
