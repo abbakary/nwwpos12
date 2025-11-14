@@ -57,14 +57,14 @@ def api_start_order(request):
 
         user_branch = get_user_branch(request.user)
 
-        # Check for existing started order for this plate (status='created')
+        # Check for existing started order for this plate (status='in_progress')
         # If one exists and hasn't been updated yet, return it instead of creating a duplicate
         existing_vehicle = Vehicle.objects.filter(plate_number__iexact=plate_number, customer__branch=user_branch).select_related('customer').first()
         if existing_vehicle:
-            # Check if there's already a created order for this vehicle
+            # Check if there's already a started (in_progress) order for this vehicle
             existing_order = Order.objects.filter(
                 vehicle=existing_vehicle,
-                status='created'
+                status='in_progress'
             ).order_by('-created_at').first()
 
             if existing_order and not use_existing and not existing_customer_id:
