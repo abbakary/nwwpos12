@@ -161,12 +161,6 @@ class ExtractionFormModal {
         }
       }
 
-      // Attach change listeners for ETA
-      container.querySelectorAll('.extraction-service-checkbox').forEach(cb => {
-        cb.addEventListener('change', () => this.updateExtractedDuration());
-      });
-
-      this.updateExtractedDuration();
     })
     .catch(err => {
       console.error('Failed to load services:', err);
