@@ -3175,8 +3175,8 @@ def complete_order(request: HttpRequest, pk: int):
     # If signature file missing but signature_data exists, decode it into an uploaded file
     # First: enforce overrun reason if ETA exceeded. Accept overrun_reason from POST and save it before proceeding.
     try:
-        # Fetch overrun reason from POST (either form field or json body fallback)
-        overrun_reason_input = request.POST.get('overrun_reason') or request.POST.get('delay_reason') or None
+        # Fetch overrun reason from POST (check multiple field names for compatibility)
+        overrun_reason_input = request.POST.get('overrun_reason') or request.POST.get('delay_reason') or request.POST.get('signature_reason') or None
     except Exception:
         overrun_reason_input = None
 
