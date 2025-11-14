@@ -222,6 +222,18 @@ def extract_header_fields(text):
     }
 
 
+def clean_num(s):
+    """Helper to convert string number to Decimal"""
+    try:
+        if s:
+            cleaned = re.sub(r'[^\d\.\,\-]', '', str(s)).strip()
+            if cleaned:
+                return Decimal(cleaned.replace(',', ''))
+    except Exception:
+        return None
+    return None
+
+
 def extract_line_items(text):
     """Extract line items from invoice text.
     Handles Proforma Invoice format with table: Sr No., Item Code, Description, Type, Qty, Rate, Value
