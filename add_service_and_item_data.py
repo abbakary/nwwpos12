@@ -18,22 +18,22 @@ User = get_user_model()
 def create_service_types():
     """Create sample service types"""
     service_types_data = [
-        {"name": "Oil Change", "estimated_minutes": 30},
-        {"name": "Brake Service", "estimated_minutes": 60},
-        {"name": "Tire Rotation", "estimated_minutes": 45},
-        {"name": "Engine Tune-up", "estimated_minutes": 90},
-        {"name": "Transmission Service", "estimated_minutes": 120},
-        {"name": "Battery Replacement", "estimated_minutes": 20},
-        {"name": "Air Filter Change", "estimated_minutes": 15},
-        {"name": "Wheel Alignment", "estimated_minutes": 75},
-        {"name": "Suspension Repair", "estimated_minutes": 100},
-        {"name": "Exhaust System Repair", "estimated_minutes": 80},
-        {"name": "Radiator Flush", "estimated_minutes": 50},
-        {"name": "AC Service", "estimated_minutes": 70},
-        {"name": "Spark Plug Replacement", "estimated_minutes": 40},
-        {"name": "Brake Pad Replacement", "estimated_minutes": 35},
-        {"name": "Coolant Replacement", "estimated_minutes": 45},
-        {"name": "Power Steering Fluid", "estimated_minutes": 30},
+        {"name": "Oil Change"},
+        {"name": "Brake Service"},
+        {"name": "Tire Rotation"},
+        {"name": "Engine Tune-up"},
+        {"name": "Transmission Service"},
+        {"name": "Battery Replacement"},
+        {"name": "Air Filter Change"},
+        {"name": "Wheel Alignment"},
+        {"name": "Suspension Repair"},
+        {"name": "Exhaust System Repair"},
+        {"name": "Radiator Flush"},
+        {"name": "AC Service"},
+        {"name": "Spark Plug Replacement"},
+        {"name": "Brake Pad Replacement"},
+        {"name": "Coolant Replacement"},
+        {"name": "Power Steering Fluid"},
     ]
     
     service_types = []
@@ -41,13 +41,12 @@ def create_service_types():
         service_type, created = ServiceType.objects.get_or_create(
             name=service_data["name"],
             defaults={
-                "estimated_minutes": service_data["estimated_minutes"],
                 "is_active": True
             }
         )
         service_types.append(service_type)
         if created:
-            print(f"✓ Created service type: {service_type.name} ({service_type.estimated_minutes} mins)")
+            print(f"✓ Created service type: {service_type.name}")
         else:
             print(f"• Service type already exists: {service_type.name}")
     
@@ -56,22 +55,22 @@ def create_service_types():
 def create_service_addons():
     """Create sample service addons"""
     service_addons_data = [
-        {"name": "Wheel Balancing", "estimated_minutes": 20},
-        {"name": "Tire Installation", "estimated_minutes": 30},
-        {"name": "Wheel Mounting", "estimated_minutes": 25},
-        {"name": "Tire Repair", "estimated_minutes": 15},
-        {"name": "Alignment Check", "estimated_minutes": 10},
-        {"name": "Suspension Inspection", "estimated_minutes": 20},
-        {"name": "Brake Fluid Replacement", "estimated_minutes": 25},
-        {"name": "Engine Cleaning", "estimated_minutes": 40},
-        {"name": "Cabin Air Filter", "estimated_minutes": 10},
-        {"name": "Battery Testing", "estimated_minutes": 10},
-        {"name": "Headlight Restoration", "estimated_minutes": 30},
-        {"name": "Undercarriage Wash", "estimated_minutes": 15},
-        {"name": "Transmission Fluid Flush", "estimated_minutes": 45},
-        {"name": "Differential Service", "estimated_minutes": 50},
-        {"name": "Engine Oil Top-up", "estimated_minutes": 5},
-        {"name": "Windshield Treatment", "estimated_minutes": 15},
+        {"name": "Wheel Balancing"},
+        {"name": "Tire Installation"},
+        {"name": "Wheel Mounting"},
+        {"name": "Tire Repair"},
+        {"name": "Alignment Check"},
+        {"name": "Suspension Inspection"},
+        {"name": "Brake Fluid Replacement"},
+        {"name": "Engine Cleaning"},
+        {"name": "Cabin Air Filter"},
+        {"name": "Battery Testing"},
+        {"name": "Headlight Restoration"},
+        {"name": "Undercarriage Wash"},
+        {"name": "Transmission Fluid Flush"},
+        {"name": "Differential Service"},
+        {"name": "Engine Oil Top-up"},
+        {"name": "Windshield Treatment"},
     ]
     
     service_addons = []
@@ -79,13 +78,12 @@ def create_service_addons():
         addon, created = ServiceAddon.objects.get_or_create(
             name=addon_data["name"],
             defaults={
-                "estimated_minutes": addon_data["estimated_minutes"],
                 "is_active": True
             }
         )
         service_addons.append(addon)
         if created:
-            print(f"✓ Created service addon: {addon.name} ({addon.estimated_minutes} mins)")
+            print(f"✓ Created service addon: {addon.name}")
         else:
             print(f"• Service addon already exists: {addon.name}")
     

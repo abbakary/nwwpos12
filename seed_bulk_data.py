@@ -166,7 +166,6 @@ def ensure_orders(customers, vehicles, inventory_items, min_orders=20):
         if otype == 'service':
             svc = random.choice(service_types)
             data['description'] = f"{svc} for {vehicle.make if vehicle else 'vehicle'}"
-            data['estimated_duration'] = random.randint(30, 480)
             if status == 'in_progress':
                 data['started_at'] = created_at + timedelta(minutes=random.randint(10,120))
         elif otype == 'sales':

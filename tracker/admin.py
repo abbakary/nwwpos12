@@ -40,7 +40,7 @@ class OrderAdmin(admin.ModelAdmin):
                 'classes': ('wide', 'extrapretty'),
             }),
             ('Status & Progress', {
-                'fields': ('status', 'description', 'estimated_duration', 'actual_duration'),
+                'fields': ('status', 'description'),
                 'classes': ('wide', 'extrapretty'),
             }),
         )

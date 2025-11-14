@@ -156,11 +156,10 @@
                     {% for svc in service_types %}
                     <div class="col-md-6 col-lg-4">
                       <div class="service-checkbox-card">
-                        <input class="form-check-input service-checkbox" type="checkbox" id="svc_chk_{{ forloop.counter }}" name="service_selection" value="{{ svc.name }}" data-minutes="{{ svc.estimated_minutes }}" {% if step3.service_selection and svc.name in step3.service_selection %}checked{% endif %}>
+                        <input class="form-check-input service-checkbox" type="checkbox" id="svc_chk_{{ forloop.counter }}" name="service_selection" value="{{ svc.name }}" {% if step3.service_selection and svc.name in step3.service_selection %}checked{% endif %}>
                         <label class="service-checkbox-label" for="svc_chk_{{ forloop.counter }}">
                           <div class="service-checkbox-content">
                             <div class="service-checkbox-name">{{ svc.name }}</div>
-                            <div class="service-checkbox-duration"><i class="fa fa-clock-o me-1"></i>{{ svc.estimated_minutes }} mins</div>
                           </div>
                         </label>
                       </div>
@@ -181,19 +180,14 @@
                     {% endfor %}
                   {% endif %}
                 </div>
-                <div class="small text-muted mt-2" id="cr_total_eta_hint" style="display:none;"></div>
               </div>
             </div>
           </div>
 
-          <!-- Description and Duration -->
-          <div class="col-md-8">
+          <!-- Description -->
+          <div class="col-12">
             <label class="form-label">Description</label>
             <textarea name="description" class="form-control" placeholder="Describe the issue or service needed"></textarea>
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">Estimated duration (mins)</label>
-            <input name="estimated_duration" id="estimated_duration" class="form-control" value="0" readonly>
           </div>
         </div>
         <div class="d-flex gap-2 mt-4">
@@ -237,11 +231,10 @@
                     {% for ad in sales_addons %}
                     <div class="col-md-6 col-lg-4">
                       <div class="addon-checkbox-card">
-                        <input class="form-check-input tire-service-checkbox" type="checkbox" id="oc_ts_{{ forloop.counter }}" name="tire_services" value="{{ ad.name }}" data-minutes="{{ ad.estimated_minutes }}">
+                        <input class="form-check-input tire-service-checkbox" type="checkbox" id="oc_ts_{{ forloop.counter }}" name="tire_services" value="{{ ad.name }}">
                         <label class="addon-checkbox-label" for="oc_ts_{{ forloop.counter }}">
                           <div class="addon-checkbox-content">
                             <div class="addon-checkbox-name">{{ ad.name }}</div>
-                            <div class="addon-checkbox-duration"><i class="fa fa-clock-o me-1"></i>{{ ad.estimated_minutes }} mins</div>
                           </div>
                         </label>
                       </div>
@@ -251,19 +244,14 @@
                     <div class="col-12"><small class="text-muted">No add-ons available</small></div>
                   {% endif %}
                 </div>
-                <div class="small text-muted mt-2" id="cr_tire_services_total_eta_hint" style="display:none;"></div>
               </div>
             </div>
           </div>
 
-          <!-- Description and Duration -->
-          <div class="col-md-8">
+          <!-- Description -->
+          <div class="col-12">
             <label class="form-label">Description (optional)</label>
             <textarea name="description" class="form-control" rows="3" placeholder="Additional details about the purchase..."></textarea>
-          </div>
-          <div class="col-md-4">
-            <label class="form-label">Estimated duration (mins)</label>
-            <input name="estimated_duration" id="estimated_duration_sales" class="form-control" value="0" readonly>
           </div>
         </div>
         <div class="d-flex gap-2 mt-4">
@@ -396,14 +384,6 @@
                     <div class="alert alert-warning py-2 mb-0"><i class="fa fa-exclamation-triangle me-2"></i>No services selected</div>
                   </div>
                   {% endif %}
-                  {% if step3.estimated_duration %}
-                  <div class="col-12">
-                    <small class="text-muted d-block fw-medium" style="color: rgba(255, 208, 0, 0.534);">Estimated Time</small>
-                    <div class="p-2 rounded border-start border-4 border-success bg-light">
-                      <strong style="color: rgb(255, 187, 0);">{{ step3.estimated_duration }} mins</strong>
-                    </div>
-                  </div>
-                  {% endif %}
                 </div>
 
               {% elif intent == 'sales' %}
@@ -433,14 +413,6 @@
                       {% for addon in step3.tire_services %}
                         <span class="badge bg-warning text-dark">{{ addon }}</span>
                       {% endfor %}
-                    </div>
-                  </div>
-                  {% endif %}
-                  {% if step3.estimated_duration %}
-                  <div class="col-12">
-                    <small class="text-muted d-block fw-medium" style="color: rgb(255, 208, 0);">Estimated Time</small>
-                    <div class="p-2 rounded border-start border-4 border-warning bg-light">
-                      <strong style="color: rgb(255, 196, 0);">{{ step3.estimated_duration }} mins</strong>
                     </div>
                   </div>
                   {% endif %}
@@ -489,7 +461,6 @@
         <input type="hidden" name="model" value="{{ step3.model }}">
         <input type="hidden" name="vehicle_type" value="{{ step3.vehicle_type }}">
         <input type="hidden" name="description" value="{{ step3.description }}">
-        <input type="hidden" name="estimated_duration" value="{{ step3.estimated_duration }}">
 
       {% elif intent == 'sales' %}
         <input type="hidden" name="type" value="sales">
@@ -498,7 +469,6 @@
         <input type="hidden" name="quantity" value="{{ step3.quantity }}">
         <input type="hidden" name="tire_type" value="{{ step3.tire_type }}">
         <input type="hidden" name="description" value="{{ step3.description }}">
-        <input type="hidden" name="estimated_duration" value="{{ step3.estimated_duration }}">
         {% if step3.tire_services %}
           {% for ts in step3.tire_services %}
             <input type="hidden" name="tire_services" value="{{ ts }}">

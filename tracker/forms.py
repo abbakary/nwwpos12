@@ -486,7 +486,6 @@ class OrderForm(forms.ModelForm):
             "vehicle",
             "priority",
             "description",
-            "estimated_duration",
             "item_name",
             "brand",
             "quantity",
@@ -501,7 +500,6 @@ class OrderForm(forms.ModelForm):
             "vehicle": forms.Select(attrs={'class': 'form-select'}),
             "priority": forms.Select(attrs={'class': 'form-select'}),
             "description": forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Describe the issue or service needed'}),
-            "estimated_duration": forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
             "item_name": forms.Select(attrs={'class': 'form-select'}),
             "brand": forms.Select(attrs={'class': 'form-select'}),
             "quantity": forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
@@ -515,30 +513,20 @@ class OrderForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Default estimated duration for service orders
-        if not self.fields["estimated_duration"].initial:
-            self.fields["estimated_duration"].initial = 50
-
-        # Dynamic service types from DB, attach durations mapping for front-end
+        # Dynamic service types from DB
         try:
             svc_qs = ServiceType.objects.filter(is_active=True).order_by('name')
             svc_choices = [(s.name, s.name) for s in svc_qs]
-            durations_map = {s.name: int(s.estimated_minutes or 0) for s in svc_qs}
             self.fields['service_selection'].choices = svc_choices
-            # Attach mapping for JS to consume
-            self.fields['service_selection'].widget.attrs['data-service-durations'] = json.dumps(durations_map)
         except Exception:
             # Keep empty choices on error
             self.fields['service_selection'].choices = []
 
-        # Dynamic service addons from DB, attach durations mapping for front-end
+        # Dynamic service addons from DB
         try:
             addon_qs = ServiceAddon.objects.filter(is_active=True).order_by('name')
             addon_choices = [(a.name, a.name) for a in addon_qs]
-            addon_durations_map = {a.name: int(a.estimated_minutes or 0) for a in addon_qs}
             self.fields['tire_services'].choices = addon_choices
-            # Attach mapping for JS to consume
-            self.fields['tire_services'].widget.attrs['data-addon-durations'] = json.dumps(addon_durations_map)
         except Exception:
             # Keep empty choices on error
             self.fields['tire_services'].choices = []
@@ -610,7 +598,7 @@ class OrderForm(forms.ModelForm):
     def clean(self):
         cleaned = super().clean()
         t = cleaned.get("type")
-        
+
         if t == "sales":
             item_id = cleaned.get("item_name")
             if not item_id:
@@ -637,32 +625,8 @@ class OrderForm(forms.ModelForm):
                 self.add_error("quantity", "Quantity must be at least 1")
             # Always set tire_type to New (hidden field)
             cleaned["tire_type"] = "New"
-            
-            # Calculate estimated duration from selected tire services
-            tire_services = cleaned.get("tire_services") or []
-            if tire_services:
-                try:
-                    addons = ServiceAddon.objects.filter(name__in=tire_services, is_active=True)
-                    total_minutes = sum(int(a.estimated_minutes or 0) for a in addons)
-                    # If there's already an estimated duration, add to it
-                    current_duration = cleaned.get("estimated_duration") or 0
-                    try:
-                        current_duration = int(current_duration)
-                    except (ValueError, TypeError):
-                        current_duration = 0
-                    cleaned["estimated_duration"] = current_duration + total_minutes
-                except Exception:
-                    pass
 
         elif t == "service":
-            # Provide sensible defaults to avoid failing submission when user selects Service
-            dur = cleaned.get("estimated_duration")
-            try:
-                dur = int(dur) if dur is not None and str(dur) != '' else None
-            except (TypeError, ValueError):
-                dur = None
-            if not dur or dur <= 0:
-                cleaned["estimated_duration"] = 50
             services = cleaned.get("service_selection") or []
             desc = (cleaned.get("description") or "").strip()
             if services:
@@ -678,22 +642,13 @@ class OrderForm(forms.ModelForm):
             cleaned["description"] = desc
             # Always set tire_type to New (hidden field)
             cleaned["tire_type"] = "New"
-            
-            # Calculate estimated duration from selected services
-            if services:
-                try:
-                    service_types = ServiceType.objects.filter(name__in=services, is_active=True)
-                    total_minutes = sum(int(s.estimated_minutes or 0) for s in service_types)
-                    cleaned["estimated_duration"] = total_minutes
-                except Exception:
-                    pass
 
         elif t == "inquiry":
             if not cleaned.get("inquiry_type"):
                 self.add_error("inquiry_type", "Inquiry type is required")
             if not cleaned.get("questions"):
                 self.add_error("questions", "Please provide your questions")
-                
+
         return cleaned
 
 class CustomerSearchForm(forms.Form):

@@ -161,12 +161,6 @@ class ExtractionFormModal {
         }
       }
 
-      // Attach change listeners for ETA
-      container.querySelectorAll('.extraction-service-checkbox').forEach(cb => {
-        cb.addEventListener('change', () => this.updateExtractedDuration());
-      });
-
-      this.updateExtractedDuration();
     })
     .catch(err => {
       console.error('Failed to load services:', err);
@@ -181,13 +175,12 @@ class ExtractionFormModal {
       const badgeHtml = badge ? ` <span class="badge bg-light text-dark ms-1">${badge}</span>` : '';
       col.innerHTML = `
         <div class="form-check">
-          <input class="form-check-input extraction-service-checkbox" type="checkbox" 
-                 id="extraction_svc_${service.id}" 
-                 name="extracted_services" 
-                 value="${service.name}" 
-                 data-minutes="${service.estimated_minutes || 0}">
+          <input class="form-check-input extraction-service-checkbox" type="checkbox"
+                 id="extraction_svc_${service.id}"
+                 name="extracted_services"
+                 value="${service.name}">
           <label class="form-check-label" for="extraction_svc_${service.id}">
-            ${service.name} <span class="text-muted small">(${service.estimated_minutes || 0}m)</span>${badgeHtml}
+            ${service.name}${badgeHtml}
           </label>
         </div>
       `;
@@ -195,29 +188,6 @@ class ExtractionFormModal {
     });
   }
 
-  updateExtractedDuration() {
-    const hint = document.getElementById('extractionEtaHint');
-    const durationInput = document.querySelector('input[name="extracted_estimated_duration"]');
-    let total = 0;
-
-    document.querySelectorAll('.extraction-service-checkbox:checked').forEach(cb => {
-      const m = parseInt(cb.getAttribute('data-minutes') || '0', 10);
-      if (!isNaN(m)) total += m;
-    });
-
-    if (durationInput && total > 0) {
-      durationInput.value = String(total);
-    }
-
-    if (hint) {
-      if (total > 0) {
-        hint.style.display = 'block';
-        hint.textContent = `Estimated total time: ${total} minutes`;
-      } else {
-        hint.style.display = 'none';
-      }
-    }
-  }
 
   validateStep(stepNumber) {
     this.clearAllErrors();

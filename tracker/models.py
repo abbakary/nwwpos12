@@ -149,8 +149,6 @@ class Order(models.Model):
     priority = models.CharField(max_length=16, choices=PRIORITY_CHOICES, default="medium")
 
     description = models.TextField(blank=True, null=True)
-    estimated_duration = models.PositiveIntegerField(blank=True, null=True, help_text="Minutes")
-    actual_duration = models.PositiveIntegerField(blank=True, null=True)
 
     # Sales fields
     item_name = models.CharField(max_length=64, blank=True, null=True)
@@ -179,10 +177,6 @@ class Order(models.Model):
     signed_at = models.DateTimeField(blank=True, null=True)
     # completion_date is kept for historical compatibility; completed_at is canonical timestamp used across views
 
-    # Overrun / delay reporting (when order exceeds estimated duration)
-    overrun_reason = models.TextField(blank=True, null=True, help_text="Reason provided when an order exceeded its ETA and was completed later")
-    overrun_reported_at = models.DateTimeField(blank=True, null=True)
-    overrun_reported_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='overrun_reports')
 
     # Additional fields used across the app
     completion_date = models.DateTimeField(blank=True, null=True)
@@ -379,9 +373,8 @@ class CustomerNote(models.Model):
 
 
 class ServiceType(models.Model):
-    """Admin-managed service types for 'Service' orders with expected durations."""
+    """Admin-managed service types for 'Service' orders."""
     name = models.CharField(max_length=128, unique=True)
-    estimated_minutes = models.PositiveIntegerField(default=30, help_text="Expected time in minutes")
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -393,13 +386,12 @@ class ServiceType(models.Model):
         ]
 
     def __str__(self) -> str:
-        return f"{self.name} ({self.estimated_minutes}m)"
+        return self.name
 
 
 class ServiceAddon(models.Model):
     """Admin-managed add-on services for 'Sales' orders (e.g., installation, balancing)."""
     name = models.CharField(max_length=128, unique=True)
-    estimated_minutes = models.PositiveIntegerField(default=10, help_text="Expected time in minutes")
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -411,7 +403,7 @@ class ServiceAddon(models.Model):
         ]
 
     def __str__(self) -> str:
-        return f"{self.name} ({self.estimated_minutes}m)"
+        return self.name
 
 
 

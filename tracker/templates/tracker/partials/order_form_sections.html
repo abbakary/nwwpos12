@@ -20,11 +20,10 @@
                                 {% for svc in service_types %}
                                 <div class="col-md-6 col-lg-4">
                                     <div class="service-checkbox-card">
-                                        <input class="form-check-input service-checkbox" type="checkbox" id="svc_chk_{{ forloop.counter }}" name="service_selection" value="{{ svc.name }}" data-minutes="{{ svc.estimated_minutes }}">
+                                        <input class="form-check-input service-checkbox" type="checkbox" id="svc_chk_{{ forloop.counter }}" name="service_selection" value="{{ svc.name }}">
                                         <label class="service-checkbox-label" for="svc_chk_{{ forloop.counter }}">
                                             <div class="service-checkbox-content">
                                                 <div class="service-checkbox-name">{{ svc.name }}</div>
-                                                <div class="service-checkbox-duration"><i class="fa fa-clock-o me-1"></i>{{ svc.estimated_minutes }} mins</div>
                                             </div>
                                         </label>
                                     </div>
@@ -48,26 +47,18 @@
                         {% if form.service_selection.errors %}
                         <div class="text-danger f-12 mt-2">{{ form.service_selection.errors|striptags }}</div>
                         {% endif %}
-                        <div class="small text-muted mt-2" id="svc_total_eta_hint" style="display:none;"></div>
                     </div>
                 </div>
             </div>
             {% endif %}
 
             {% if not registration_summary_only %}
-            {# Service Description and Duration #}
-            <div class="col-md-8">
+            {# Service Description #}
+            <div class="col-12">
                 <label class="form-label">{{ form.description.label }}</label>
                 {{ form.description }}
                 {% if form.description.errors %}
                 <div class="text-danger f-12">{{ form.description.errors|striptags }}</div>
-                {% endif %}
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">{{ form.estimated_duration.label }}</label>
-                {{ form.estimated_duration }}
-                {% if form.estimated_duration.errors %}
-                <div class="text-danger f-12">{{ form.estimated_duration.errors|striptags }}</div>
                 {% endif %}
             </div>
             {% endif %}
@@ -118,11 +109,10 @@
                                 {% for ad in sales_addons %}
                                 <div class="col-md-6 col-lg-4">
                                     <div class="addon-checkbox-card">
-                                        <input class="form-check-input tire-service-checkbox" type="checkbox" id="oc_ts_{{ forloop.counter }}" name="tire_services" value="{{ ad.name }}" data-minutes="{{ ad.estimated_minutes }}">
+                                        <input class="form-check-input tire-service-checkbox" type="checkbox" id="oc_ts_{{ forloop.counter }}" name="tire_services" value="{{ ad.name }}">
                                         <label class="addon-checkbox-label" for="oc_ts_{{ forloop.counter }}">
                                             <div class="addon-checkbox-content">
                                                 <div class="addon-checkbox-name">{{ ad.name }}</div>
-                                                <div class="addon-checkbox-duration"><i class="fa fa-clock-o me-1"></i>{{ ad.estimated_minutes }} mins</div>
                                             </div>
                                         </label>
                                     </div>
@@ -146,7 +136,6 @@
                         {% if form.tire_services.errors %}
                         <div class="text-danger f-12 mt-2">{{ form.tire_services.errors|striptags }}</div>
                         {% endif %}
-                        <div class="small text-muted mt-2" id="tire_services_total_eta_hint" style="display:none;"></div>
                     </div>
                 </div>
             </div>
@@ -200,99 +189,6 @@
     {% endwith %}
 </div>
 
-<script>
-(function(){
-  // Update service ETA for service selections
-  function updateServiceEta(){
-    var total = 0;
-    document.querySelectorAll('input[type="checkbox"][name="service_selection"]:checked').forEach(function(cb){
-      var m = parseInt(cb.getAttribute('data-minutes') || '0', 10);
-      if(!isNaN(m)) total += m;
-    });
-    var etaInput = document.getElementById('id_estimated_duration');
-    var hint = document.getElementById('svc_total_eta_hint');
-    if(etaInput){
-      if(total > 0){ etaInput.value = String(total); }
-      if(hint){
-        if(total > 0){
-          hint.style.display = '';
-          hint.textContent = 'Estimated total time: ' + total + ' mins';
-        } else {
-          hint.style.display = 'none';
-          hint.textContent = '';
-        }
-      }
-    }
-    // Also update the combined total if we're in sales section
-    updateCombinedEta();
-  }
-  
-  // Update tire services ETA for sales add-ons
-  function updateTireServicesEta(){
-    var total = 0;
-    document.querySelectorAll('input[type="checkbox"][name="tire_services"]:checked').forEach(function(cb){
-      var m = parseInt(cb.getAttribute('data-minutes') || '0', 10);
-      if(!isNaN(m)) total += m;
-    });
-    var etaInput = document.getElementById('id_estimated_duration');
-    var hint = document.getElementById('tire_services_total_eta_hint');
-    if(hint){
-      if(total > 0){
-        hint.style.display = '';
-        hint.textContent = 'Estimated total time: ' + total + ' mins';
-      } else {
-        hint.style.display = 'none';
-        hint.textContent = '';
-      }
-    }
-    // Also update the combined total if we're in sales section
-    updateCombinedEta();
-  }
-  
-  // Update combined ETA for both service and tire services
-  function updateCombinedEta(){
-    var serviceTotal = 0;
-    var tireServiceTotal = 0;
-    
-    // Calculate service total
-    document.querySelectorAll('input[type="checkbox"][name="service_selection"]:checked').forEach(function(cb){
-      var m = parseInt(cb.getAttribute('data-minutes') || '0', 10);
-      if(!isNaN(m)) serviceTotal += m;
-    });
-    
-    // Calculate tire services total
-    document.querySelectorAll('input[type="checkbox"][name="tire_services"]:checked').forEach(function(cb){
-      var m = parseInt(cb.getAttribute('data-minutes') || '0', 10);
-      if(!isNaN(m)) tireServiceTotal += m;
-    });
-    
-    var combinedTotal = serviceTotal + tireServiceTotal;
-    var etaInput = document.getElementById('id_estimated_duration');
-    
-    if(etaInput){
-      if(combinedTotal > 0){ 
-        etaInput.value = String(combinedTotal); 
-      }
-    }
-  }
-  
-  document.addEventListener('DOMContentLoaded', function(){
-    // Service selection checkboxes
-    document.querySelectorAll('input[type="checkbox"][name="service_selection"]').forEach(function(cb){
-      cb.addEventListener('change', updateServiceEta);
-    });
-    
-    // Tire service checkboxes
-    document.querySelectorAll('input[type="checkbox"][name="tire_services"]').forEach(function(cb){
-      cb.addEventListener('change', updateTireServicesEta);
-    });
-    
-    // Initialize ETAs
-    updateServiceEta();
-    updateTireServicesEta();
-  });
-})();
-</script>
 
 <style>
 .form-check {
