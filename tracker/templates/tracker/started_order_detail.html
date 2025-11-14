@@ -1149,8 +1149,8 @@
               }
 
               function showExtractedDataPreview(header, items){
-                console.log('Showing extracted data preview:', header);
-                
+                console.log('Showing extracted data preview:', header, items);
+
                 // Customer Information
                 const el1 = document.getElementById('previewCustomerName');
                 if (el1) el1.textContent = header.customer_name || '-';
@@ -1179,6 +1179,42 @@
 
                 const el9 = document.getElementById('previewReference');
                 if (el9) el9.textContent = header.reference || '-';
+
+                // Line Items
+                const lineItemsEl = document.getElementById('previewLineItems');
+                if (lineItemsEl) {
+                  if (items && Array.isArray(items) && items.length > 0) {
+                    let itemsHtml = `<table class="table table-sm table-bordered mb-0" style="font-size: 0.85rem;">
+                      <thead class="table-light">
+                        <tr>
+                          <th style="width: 40px; text-align: center;">Sr</th>
+                          <th style="width: 80px;">Code</th>
+                          <th>Description</th>
+                          <th style="width: 50px; text-align: center;">Qty</th>
+                          <th style="width: 60px;">Unit</th>
+                          <th style="width: 80px; text-align: right;">Value</th>
+                        </tr>
+                      </thead>
+                      <tbody>`;
+
+                    items.forEach((item, idx) => {
+                      const itemValue = item.value ? parseFloat(item.value).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '0.00';
+                      itemsHtml += `<tr>
+                        <td style="text-align: center;"><small>${idx + 1}</small></td>
+                        <td><small>${item.code || '-'}</small></td>
+                        <td><small>${item.description || '-'}</small></td>
+                        <td style="text-align: center;"><small>${item.qty || 1}</small></td>
+                        <td><small>${item.unit || '-'}</small></td>
+                        <td style="text-align: right;"><small>${itemValue}</small></td>
+                      </tr>`;
+                    });
+
+                    itemsHtml += `</tbody></table>`;
+                    lineItemsEl.innerHTML = itemsHtml;
+                  } else {
+                    lineItemsEl.innerHTML = '<p class="text-muted small">No line items extracted</p>';
+                  }
+                }
 
                 // Payment Information
                 const el10 = document.getElementById('previewSubtotal');
