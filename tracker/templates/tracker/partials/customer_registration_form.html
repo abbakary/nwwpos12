@@ -469,7 +469,6 @@
         <input type="hidden" name="quantity" value="{{ step3.quantity }}">
         <input type="hidden" name="tire_type" value="{{ step3.tire_type }}">
         <input type="hidden" name="description" value="{{ step3.description }}">
-        <input type="hidden" name="estimated_duration" value="{{ step3.estimated_duration }}">
         {% if step3.tire_services %}
           {% for ts in step3.tire_services %}
             <input type="hidden" name="tire_services" value="{{ ts }}">
