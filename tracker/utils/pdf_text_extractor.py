@@ -933,7 +933,7 @@ def parse_invoice_data(text: str) -> dict:
                 # Find where description ends
                 for i, word in enumerate(words):
                     # Stop at unit keywords (PCS, UNT, etc.)
-                    if re.match(r'^(PCS|NOS|KG|HR|LTR|PIECES|UNITS|KIT|BOX|CASE|SETS|PC|UNT)$', word, re.I):
+                    if re.match(r'^(PCS|NOS|KG|HR|LTR|PIECES|UNITS?|KIT|BOX|CASE|SETS?|PC|UNT)$', word, re.I):
                         desc_end_idx = i
                         break
                     # Stop at large numbers (amounts typically have commas or many digits)
@@ -941,8 +941,20 @@ def parse_invoice_data(text: str) -> dict:
                         desc_end_idx = i
                         break
 
-                # Extract and clean description
-                full_description = ' '.join(words[:desc_end_idx]).strip()
+                # Extract description before unit/amount
+                desc_words_list = words[:desc_end_idx]
+
+                # Remove trailing small integers (these are likely qty, not part of description)
+                # Small integers are typically 1-999 and appear just before unit keyword
+                while desc_words_list:
+                    last_word = desc_words_list[-1]
+                    if re.match(r'^\d{1,3}$', last_word):
+                        # Last word is small integer, remove it
+                        desc_words_list = desc_words_list[:-1]
+                    else:
+                        break
+
+                full_description = ' '.join(desc_words_list).strip()
                 if not full_description or len(full_description) < 2:
                     # Use first meaningful words if no clear boundary
                     desc_words = [w for w in words[:20] if re.search(r'[A-Za-z]', w)]
