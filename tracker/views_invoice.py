@@ -565,10 +565,10 @@ def api_upload_extract_invoice(request):
 def invoice_detail(request, pk):
     """View invoice details and manage line items/payments"""
     invoice = get_object_or_404(Invoice, pk=pk)
-    
+
     if request.method == 'POST':
         action = request.POST.get('action')
-        
+
         if action == 'add_line_item':
             form = InvoiceLineItemForm(request.POST)
             if form.is_valid():
@@ -577,7 +577,7 @@ def invoice_detail(request, pk):
                 line_item.save()
                 messages.success(request, 'Line item added.')
                 return redirect('tracker:invoice_detail', pk=invoice.pk)
-        
+
         elif action == 'delete_line_item':
             item_id = request.POST.get('item_id')
             try:
@@ -588,7 +588,7 @@ def invoice_detail(request, pk):
             except InvoiceLineItem.DoesNotExist:
                 messages.error(request, 'Line item not found.')
             return redirect('tracker:invoice_detail', pk=invoice.pk)
-        
+
         elif action == 'update_payment':
             form = InvoicePaymentForm(request.POST)
             if form.is_valid():
@@ -597,23 +597,14 @@ def invoice_detail(request, pk):
                 payment.save()
                 messages.success(request, 'Payment information updated.')
                 return redirect('tracker:invoice_detail', pk=invoice.pk)
-        
-        elif action == 'update_invoice':
-            form = InvoiceForm(request.POST, instance=invoice)
-            if form.is_valid():
-                form.save()
-                messages.success(request, 'Invoice updated.')
-                return redirect('tracker:invoice_detail', pk=invoice.pk)
-    
+
     line_item_form = InvoiceLineItemForm()
     payment_form = InvoicePaymentForm()
-    invoice_form = InvoiceForm(instance=invoice)
-    
+
     return render(request, 'tracker/invoice_detail.html', {
         'invoice': invoice,
         'line_item_form': line_item_form,
         'payment_form': payment_form,
-        'invoice_form': invoice_form,
     })
 
 
