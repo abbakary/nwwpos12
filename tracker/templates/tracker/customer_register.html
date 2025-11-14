@@ -202,60 +202,6 @@ function toggleServiceCheckbox(e, checkboxId, isTire=false) {
             card.classList.remove('border-primary', 'bg-light');
         }
     }
-    // Recalculate ETA
-    calculateETA();
-}
-
-function parseMinutes(val) {
-    if (!val) return 0;
-    const n = parseInt(val, 10);
-    return isNaN(n) ? 0 : n;
-}
-
-function calculateETA() {
-    // Sum service checkboxes
-    let total = 0;
-    document.querySelectorAll('.service-checkbox').forEach(chk => {
-        if (chk.checked) {
-            const mins = chk.dataset.minutes || chk.getAttribute('data-minutes') || '0';
-            total += parseMinutes(mins);
-        }
-    });
-    // Sum tire service checkboxes
-    document.querySelectorAll('.tire-service-checkbox').forEach(chk => {
-        if (chk.checked) {
-            const mins = chk.dataset.minutes || chk.getAttribute('data-minutes') || '0';
-            total += parseMinutes(mins);
-        }
-    });
-
-    // Update the estimated_duration fields if present
-    const est = document.getElementById('estimated_duration');
-    if (est) est.value = total;
-    const estSales = document.getElementById('estimated_duration_sales');
-    if (estSales) estSales.value = total;
-
-    // Show hint
-    const hint = document.getElementById('cr_total_eta_hint');
-    const hint2 = document.getElementById('cr_tire_services_total_eta_hint');
-    if (hint) {
-        if (total > 0) {
-            hint.style.display = 'block';
-            hint.textContent = 'Total estimated time: ' + total + ' mins';
-        } else {
-            hint.style.display = 'none';
-            hint.textContent = '';
-        }
-    }
-    if (hint2) {
-        if (total > 0) {
-            hint2.style.display = 'block';
-            hint2.textContent = 'Total estimated time (including add-ons): ' + total + ' mins';
-        } else {
-            hint2.style.display = 'none';
-            hint2.textContent = '';
-        }
-    }
 }
 
 // Initialize card states on DOM load
